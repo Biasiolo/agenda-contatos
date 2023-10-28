@@ -1,16 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => { 
-    // Este evento garante que o código JavaScript seja executado apenas após o carregamento completo do documento HTML.
-
     const contactForm = document.getElementById('contact-form');
     const contactTable = document.getElementById('contact-table');
     const phoneInput = document.getElementById('phone');
+    const nameInput = document.getElementById('name');
+    const contacts = []; // Array para armazenar os contatos
 
-    // Função para formatar o telefone
     function formatPhoneNumber(input) {
-        // Remove todos os caracteres não numéricos
         const phoneNumber = input.value.replace(/\D/g, '');
 
-        // Aplica a formatação desejada
         if (phoneNumber.length >= 2) {
             input.value = `(${phoneNumber.substring(0, 2)}`;
             if (phoneNumber.length >= 7) {
@@ -21,7 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Atualiza a formatação do telefone à medida que o usuário digita
     phoneInput.addEventListener('input', () => {
         formatPhoneNumber(phoneInput);
     });
@@ -29,18 +25,27 @@ document.addEventListener('DOMContentLoaded', () => {
     contactForm.addEventListener('submit', (e) => {
         e.preventDefault();
 
-        const nameInput = document.getElementById('name');
         const name = nameInput.value;
         const phone = phoneInput.value;
 
         if (name && phone) {
-            // Adiciona uma nova linha à tabela de contatos com os valores inseridos no formulário
-            const newRow = contactTable.insertRow(-1);
-            const nameCell = newRow.insertCell(0);
-            const phoneCell = newRow.insertCell(1);
+            // Adiciona o novo contato à matriz de contatos
+            contacts.push({ name, phone });
 
-            nameCell.innerHTML = name;
-            phoneCell.innerHTML = phone;
+            // Ordena a matriz de contatos em ordem alfabética com base no nome
+            contacts.sort((a, b) => a.name.localeCompare(b.name));
+
+            // Limpa a tabela HTML
+            contactTable.innerHTML = '';
+
+            // Insere os contatos na tabela na ordem classificada
+            contacts.forEach(contact => {
+                const newRow = contactTable.insertRow(-1);
+                const nameCell = newRow.insertCell(0);
+                const phoneCell = newRow.insertCell(1);
+                nameCell.innerHTML = contact.name;
+                phoneCell.innerHTML = contact.phone;
+            });
 
             // Limpa os campos de entrada após a submissão
             nameInput.value = '';
@@ -48,7 +53,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Botão para salvar o arquivo em formato .txt
     const saveButton = document.getElementById('save-button');
 
     saveButton.addEventListener('click', () => {
@@ -56,8 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function saveContactsAsTextFile() {
-        // Obtém as informações da tabela de contatos e cria um arquivo de texto com esses dados
-        const contactTable = document.getElementById('contact-table');
         const rows = contactTable.querySelectorAll('tr');
         let textContent = 'Nome\tTelefone\n';
 
@@ -70,18 +72,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Cria um Blob a partir do conteúdo de texto
         const blob = new Blob([textContent], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
 
-        // Cria um link de download e simula um clique para fazer o download do arquivo
         const a = document.createElement('a');
         a.href = url;
         a.download = 'contatos.txt';
         a.click();
 
-        // Libera o URL após o download
         URL.revokeObjectURL(url);
     }
 });
-
